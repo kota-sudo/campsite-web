@@ -1,0 +1,264 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+[x-cloak] { display: none !important; }
+
+/* =============================================
+   キャンプサイト アニメーションシステム
+   ============================================= */
+
+/* --- 星のきらめき --- */
+@keyframes twinkle {
+  0%, 100% { opacity: var(--star-op, 0.6); transform: scale(1); }
+  40%       { opacity: calc(var(--star-op, 0.6) * 0.15); transform: scale(0.4); }
+  60%       { opacity: calc(var(--star-op, 0.6) * 0.8); transform: scale(1.2); }
+}
+
+.star {
+  animation: twinkle var(--star-dur, 3s) ease-in-out infinite;
+  animation-delay: var(--star-delay, 0s);
+}
+
+/* --- 流れ星 --- */
+@keyframes shooting-star {
+  0%   { transform: translateX(0) translateY(0) rotate(-35deg); opacity: 0; width: 0; }
+  5%   { opacity: 1; }
+  70%  { opacity: 0.8; }
+  100% { transform: translateX(500px) translateY(260px) rotate(-35deg); opacity: 0; width: 140px; }
+}
+
+.shooting-star {
+  position: absolute;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.9), transparent);
+  border-radius: 100%;
+  animation: shooting-star 2.5s ease-out forwards;
+  pointer-events: none;
+}
+
+/* --- 炎の揺らぎ --- */
+@keyframes flame-outer {
+  0%,100% { transform: scaleX(1)   scaleY(1)    rotate(-2deg) translateX(0); filter: blur(2.5px); }
+  20%     { transform: scaleX(.85) scaleY(1.08) rotate(1deg)  translateX(1px); filter: blur(2px); }
+  40%     { transform: scaleX(1.1) scaleY(.94)  rotate(-1deg) translateX(-1px); filter: blur(3px); }
+  60%     { transform: scaleX(.9)  scaleY(1.06) rotate(2deg)  translateX(0); filter: blur(2px); }
+  80%     { transform: scaleX(1.05)scaleY(.97)  rotate(-2deg) translateX(1px); filter: blur(2.5px); }
+}
+
+@keyframes flame-inner {
+  0%,100% { transform: scaleX(1)   scaleY(1)    rotate(1deg); filter: blur(1px); }
+  33%     { transform: scaleX(.8)  scaleY(1.15) rotate(-2deg); filter: blur(0.5px); }
+  66%     { transform: scaleX(1.1) scaleY(.9)   rotate(1.5deg); filter: blur(1.5px); }
+}
+
+@keyframes flame-core {
+  0%,100% { transform: scaleX(1) scaleY(1) rotate(-1deg); opacity: 0.9; }
+  50%     { transform: scaleX(.9) scaleY(1.1) rotate(1deg); opacity: 1; }
+}
+
+.flame-outer { animation: flame-outer 1.8s ease-in-out infinite; transform-origin: bottom center; }
+.flame-inner { animation: flame-inner 1.2s ease-in-out infinite; transform-origin: bottom center; }
+.flame-core  { animation: flame-core  0.9s ease-in-out infinite; transform-origin: bottom center; }
+
+/* --- 煙 --- */
+@keyframes smoke {
+  0%   { transform: translateY(0)    translateX(0)   scale(.2); opacity: .5; }
+  40%  { transform: translateY(-25px) translateX(4px)  scale(.8); opacity: .25; }
+  100% { transform: translateY(-55px) translateX(-3px) scale(1.4); opacity: 0; }
+}
+.smoke-particle {
+  position: absolute;
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: rgba(180,180,160,.5);
+  filter: blur(3px);
+  animation: smoke 2.5s ease-out infinite;
+}
+.smoke-particle:nth-child(2) { animation-delay: .8s; left: 2px; }
+.smoke-particle:nth-child(3) { animation-delay: 1.6s; left: -2px; }
+
+/* --- 月の光輪 --- */
+@keyframes moon-glow {
+  0%,100% { box-shadow: 0 0 40px 10px rgba(245,215,138,.22); }
+  50%     { box-shadow: 0 0 70px 25px rgba(245,215,138,.42); }
+}
+.moon-glow { animation: moon-glow 4s ease-in-out infinite; }
+
+/* --- 浮遊 --- */
+@keyframes float {
+  0%,100% { transform: translateY(0); }
+  50%     { transform: translateY(-10px); }
+}
+.animate-float { animation: float 4s ease-in-out infinite; }
+.animate-float-slow { animation: float 6s ease-in-out infinite; }
+
+/* --- ページ読み込み登場 --- */
+@keyframes fade-in-up {
+  from { opacity: 0; transform: translateY(32px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes fade-in-scale {
+  from { opacity: 0; transform: scale(.94) translateY(16px); }
+  to   { opacity: 1; transform: scale(1) translateY(0); }
+}
+@keyframes fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+.hero-title   { animation: fade-in-up    .8s cubic-bezier(.22,1,.36,1) .2s both; }
+.hero-sub     { animation: fade-in-up    .8s cubic-bezier(.22,1,.36,1) .45s both; }
+.hero-badges  { animation: fade-in-up    .7s cubic-bezier(.22,1,.36,1) .0s both; }
+.hero-search  { animation: fade-in-scale .9s cubic-bezier(.22,1,.36,1) .65s both; }
+.hero-links   { animation: fade-in-up    .7s cubic-bezier(.22,1,.36,1) .85s both; }
+
+/* --- スクロール登場 (Intersection Observer と連動) --- */
+.reveal {
+  opacity: 0;
+  transform: translateY(28px);
+  transition: opacity .65s cubic-bezier(.22,1,.36,1), transform .65s cubic-bezier(.22,1,.36,1);
+}
+.reveal.revealed {
+  opacity: 1;
+  transform: translateY(0);
+}
+.reveal-left {
+  opacity: 0;
+  transform: translateX(-28px);
+  transition: opacity .65s cubic-bezier(.22,1,.36,1), transform .65s cubic-bezier(.22,1,.36,1);
+}
+.reveal-left.revealed { opacity: 1; transform: translateX(0); }
+
+.reveal-delay-1 { transition-delay: .1s; }
+.reveal-delay-2 { transition-delay: .2s; }
+.reveal-delay-3 { transition-delay: .3s; }
+.reveal-delay-4 { transition-delay: .4s; }
+
+/* --- カードホバー --- */
+.camp-card {
+  transition: transform .25s cubic-bezier(.22,1,.36,1), box-shadow .25s ease;
+}
+.camp-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 20px 40px rgba(45,90,27,.12), 0 8px 16px rgba(0,0,0,.06);
+}
+.camp-card .card-img {
+  transition: transform .5s cubic-bezier(.22,1,.36,1);
+  overflow: hidden;
+}
+.camp-card:hover .card-img img {
+  transform: scale(1.06);
+}
+.card-img img {
+  transition: transform .5s cubic-bezier(.22,1,.36,1);
+  width: 100%; height: 100%; object-fit: cover;
+}
+
+/* --- ボタンホバー波紋 --- */
+.btn-ripple {
+  position: relative;
+  overflow: hidden;
+}
+.btn-ripple::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle, rgba(255,255,255,.25) 0%, transparent 70%);
+  transform: scale(0);
+  transition: transform .5s ease;
+  border-radius: inherit;
+}
+.btn-ripple:hover::after { transform: scale(2); }
+
+/* --- 木々の揺れ --- */
+@keyframes sway {
+  0%,100% { transform: rotate(-1.5deg); transform-origin: bottom center; }
+  50%     { transform: rotate(1.5deg);  transform-origin: bottom center; }
+}
+.tree-sway { animation: sway 3s ease-in-out infinite; }
+.tree-sway-2 { animation: sway 4s ease-in-out infinite .8s; }
+
+/* --- パララックス (JSで transform 直書き) --- */
+.parallax-slow  { will-change: transform; }
+.parallax-mid   { will-change: transform; }
+.parallax-fast  { will-change: transform; }
+
+/* --- ナビリンク下線スライド --- */
+.nav-link-slide {
+  position: relative;
+}
+.nav-link-slide::after {
+  content: '';
+  position: absolute;
+  bottom: -2px; left: 0;
+  width: 0; height: 2px;
+  background: #a8d878;
+  transition: width .3s ease;
+}
+.nav-link-slide:hover::after { width: 100%; }
+
+/* --- ページ遷移フェード --- */
+@keyframes page-fade-in {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.page-content {
+  animation: page-fade-in .4s cubic-bezier(.22,1,.36,1) both;
+}
+
+/* --- 焚き火グロー --- */
+@keyframes fire-glow {
+  0%,100% { opacity: .22; transform: scale(1); }
+  50%     { opacity: .55; transform: scale(1.35); }
+}
+.fire-glow { animation: fire-glow 2.2s ease-in-out infinite; }
+
+/* --- 火の粉 (エンバー) --- */
+@keyframes ember {
+  0%   { transform: translateY(0)   translateX(0)   scale(1);   opacity: .9; }
+  30%  { transform: translateY(-40px) translateX(var(--ex, 8px))  scale(.8);  opacity: .7; }
+  70%  { transform: translateY(-80px) translateX(var(--ex2,12px)) scale(.5);  opacity: .4; }
+  100% { transform: translateY(-120px) translateX(var(--ex3,6px)) scale(.1);  opacity: 0; }
+}
+.ember {
+  position: absolute;
+  width: 3px; height: 3px;
+  border-radius: 50%;
+  background: #ffcc44;
+  box-shadow: 0 0 4px 1px #f5a623;
+  animation: ember var(--em-dur, 1.8s) ease-out var(--em-delay, 0s) infinite;
+  pointer-events: none;
+}
+
+/* --- 地面の光 (焚き火の反射) --- */
+@keyframes ground-light {
+  0%,100% { opacity: .12; transform: scaleX(1); }
+  50%     { opacity: .28; transform: scaleX(1.15); }
+}
+.ground-light { animation: ground-light 2.4s ease-in-out infinite; }
+
+/* --- バッジバウンス --- */
+@keyframes badge-bounce {
+  0%,100% { transform: scale(1); }
+  30%     { transform: scale(1.12); }
+  60%     { transform: scale(.97); }
+}
+.badge-bounce { animation: badge-bounce .6s ease both; }
+
+/* --- スピナー (ローディング) --- */
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+.spin { animation: spin 1s linear infinite; }
+
+/* --- スケルトンシマー --- */
+@keyframes shimmer {
+  0%   { background-position: -400px 0; }
+  100% { background-position: 400px 0; }
+}
+.skeleton {
+  background: linear-gradient(90deg, #e8e0d4 25%, #f5f0e8 50%, #e8e0d4 75%);
+  background-size: 800px 100%;
+  animation: shimmer 1.6s infinite;
+}
