@@ -71,19 +71,9 @@ RUN npm run build
 RUN mkdir -p storage/framework/sessions storage/framework/views storage/framework/cache storage/logs bootstrap/cache \
     && chown -R www-data:www-data /var/www/html
 
-# 起動スクリプト（config / route / view キャッシュ → serve）
-# ※キャッシュはビルド時ではなく起動時に実行し、コンテナの環境変数（APP_KEY 等）を反映させる
-RUN printf '%s\n' \
-    '#!/bin/sh' \
-    'set -e' \
-    'cd /var/www/html' \
-    'if [ ! -f .env ]; then cp .env.example .env; fi' \
-    'php artisan config:cache' \
-    'php artisan route:cache' \
-    'php artisan view:cache' \
-    'exec php artisan serve --host=0.0.0.0 --port="${PORT:-10000}"' \
-    > /entrypoint.sh \
-    && chmod +x /entrypoint.sh
+# 起動スクリプト: SQLite 作成 → migrate → config / route / view キャッシュ → serve
+COPY docker/entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
 
 ENV PORT=10000
 
