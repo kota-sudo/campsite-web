@@ -23,6 +23,10 @@ fi
 
 php artisan migrate --force --no-interaction
 
+php artisan storage:link --no-interaction || true
+
+php artisan app:ensure-demo-data --no-interaction || true
+
 php artisan config:cache
 php artisan route:cache
 php artisan view:cache

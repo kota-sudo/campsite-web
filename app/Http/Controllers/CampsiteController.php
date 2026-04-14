@@ -7,12 +7,27 @@ use App\Models\Campsite;
 use App\Models\Reservation;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\View\View;
 
 class CampsiteController extends Controller
 {
     public function index(Request $request): View
     {
+        // Render 等の本番で DB が空のまま起動した場合でも、一覧は最低限表示できるようにする（初回だけ）
+        if (app()->environment('production') && ! Cache::get('demo_data_seeded')) {
+            try {
+                if (! Campsite::query()->exists()) {
+                    Artisan::call('app:ensure-demo-data', [], outputBuffer: null);
+                }
+                Cache::forever('demo_data_seeded', true);
+            } catch (\Throwable $e) {
+                // 一覧表示自体は継続。ログで原因追跡できるようにだけしておく。
+                report($e);
+            }
+        }
+
         $validated = $request->validate([
             'check_in'    => ['nullable', 'date', 'after_or_equal:today'],
             'check_out'   => ['nullable', 'date', 'after:check_in'],
