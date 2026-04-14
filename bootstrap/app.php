@@ -11,6 +11,9 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
+        // Render 等のリバースプロキシの X-Forwarded-* を信頼（https 判定・asset URL に必須）
+        $middleware->trustProxies(at: '*');
+
         $middleware->alias([
             'admin' => \App\Http\Middleware\AdminMiddleware::class,
             'host'  => \App\Http\Middleware\EnsureUserIsHost::class,

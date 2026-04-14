@@ -5,6 +5,7 @@ namespace App\Providers;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\RateLimiter;
+use Illuminate\Support\Facades\Vite;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -13,6 +14,12 @@ class AppServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
+        // Vite manifest 経由の CSS/JS: ルート相対にする（リバースプロキシで http URL になり mixed content になるのを防ぐ）
+        // ※ npm run dev（public/hot あり）のときは @vite が別経路のためこのコールバックは使われない
+        Vite::createAssetPathsUsing(function (string $path, ?bool $secure = null): string {
+            return '/'.ltrim($path, '/');
+        });
+
         // チャット: 1分間に20回まで（ユーザー or IP）
         RateLimiter::for('chat', function (Request $request) {
             return Limit::perMinute(20)
