@@ -1,39 +1,94 @@
-FROM php:8.3-cli
+# Laravel + Vite（Render 等での利用想定）
+# PHP 8.3 / composer install / npm install / npm run build / 起動時に config・route・view キャッシュ → artisan serve
 
-# 必要な拡張とツール
-RUN apt-get update && apt-get install -y \
-    git curl zip unzip nodejs npm \
+FROM php:8.3-cli-bookworm
+
+ARG DEBIAN_FRONTEND=noninteractive
+
+# OSパッケージ + PHP拡張 + Node.js
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    git \
+    curl \
+    ca-certificates \
+    unzip \
+    zip \
+    libpng-dev \
+    libjpeg62-turbo-dev \
+    libwebp-dev \
+    libfreetype6-dev \
+    libzip-dev \
+    zlib1g-dev \
+    libonig-dev \
+    libxml2-dev \
+    libicu-dev \
     libsqlite3-dev \
-    && docker-php-ext-install pdo pdo_sqlite \
-    && curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer \
-    && apt-get clean && rm -rf /var/lib/apt/lists/*
+    && docker-php-ext-configure gd --with-freetype --with-jpeg --with-webp \
+    && docker-php-ext-install -j"$(nproc)" \
+        pdo_mysql \
+        pdo_sqlite \
+        mbstring \
+        exif \
+        pcntl \
+        bcmath \
+        zip \
+        intl \
+        gd \
+        opcache \
+    && rm -rf /var/lib/apt/lists/*
 
-WORKDIR /app
+# Node.js 22（Vite 8 系の要件に合わせる）
+RUN curl -fsSL https://deb.nodesource.com/setup_22.x | bash - \
+    && apt-get install -y --no-install-recommends nodejs \
+    && rm -rf /var/lib/apt/lists/*
 
-# 依存インストール
+# Composer
+COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
+
+WORKDIR /var/www/html
+
+# Composer（アプリ本体の COPY 前に依存だけ解決）
 COPY composer.json composer.lock ./
-RUN composer install --no-dev --optimize-autoloader --no-scripts
+RUN composer install \
+    --no-interaction \
+    --prefer-dist \
+    --optimize-autoloader \
+    --no-scripts
 
+# npm
 COPY package.json package-lock.json ./
-RUN npm ci
+RUN npm install --ignore-scripts
 
-# アプリ全体コピー
+# アプリケーション一式
 COPY . .
 
-# フロントエンドビルド
+RUN composer dump-autoload --optimize --classmap-authoritative \
+    && php artisan package:discover --ansi --no-interaction || true
+
+# Vite 本番ビルド（public/build を生成）
 RUN npm run build
 
-# ストレージリンク・権限
-RUN mkdir -p /var/data storage/logs storage/framework/cache storage/framework/sessions storage/framework/views bootstrap/cache \
-    && chmod -R 775 storage bootstrap/cache
+# Laravel が書き込むディレクトリ + 実行ユーザー用に権限調整
+RUN mkdir -p storage/framework/sessions storage/framework/views storage/framework/cache storage/logs bootstrap/cache \
+    && chown -R www-data:www-data /var/www/html
 
-# .env がない場合は .env.example をコピー
-RUN cp -n .env.example .env || true
+# 起動スクリプト（config / route / view キャッシュ → serve）
+# ※キャッシュはビルド時ではなく起動時に実行し、コンテナの環境変数（APP_KEY 等）を反映させる
+RUN printf '%s\n' \
+    '#!/bin/sh' \
+    'set -e' \
+    'cd /var/www/html' \
+    'if [ ! -f .env ]; then cp .env.example .env; fi' \
+    'php artisan config:cache' \
+    'php artisan route:cache' \
+    'php artisan view:cache' \
+    'exec php artisan serve --host=0.0.0.0 --port="${PORT:-10000}"' \
+    > /entrypoint.sh \
+    && chmod +x /entrypoint.sh
 
-# 起動スクリプト
-COPY docker-start.sh /docker-start.sh
-RUN chmod +x /docker-start.sh
+ENV PORT=10000
 
-EXPOSE 8000
+EXPOSE 10000
 
-CMD ["/docker-start.sh"]
+USER www-data
+
+ENTRYPOINT ["/entrypoint.sh"]
