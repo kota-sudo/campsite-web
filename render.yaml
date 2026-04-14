@@ -1,24 +1,32 @@
+# Laravel + Vite: CSS/JS は public/build に出力されるため、ビルドで必ず npm run build が必要です。
+# ダッシュボードから手動作成したサービスは、この Blueprint と同じ Build Command になっているか確認してください。
 services:
   - type: web
     name: campsite-web
     runtime: php
     buildCommand: |
+      set -e
       composer install --no-dev --optimize-autoloader
+      node -v
       npm ci
       npm run build
+      test -f public/build/manifest.json
       php artisan config:cache
       php artisan route:cache
       php artisan view:cache
     startCommand: php artisan serve --host=0.0.0.0 --port=$PORT
     envVars:
+      - key: NODE_VERSION
+        value: "22.12.0"
       - key: APP_ENV
         value: production
       - key: APP_DEBUG
         value: false
       - key: APP_KEY
         generateValue: true
+      # 実際のURL（例: https://campsite-web-ctyl.onrender.com）をダッシュボードで設定するか、RENDER_EXTERNAL_URL と揃えてください。
       - key: APP_URL
-        value: https://campsite-web.onrender.com
+        sync: false
       - key: DB_CONNECTION
         value: sqlite
       - key: DB_DATABASE
