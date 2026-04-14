@@ -1,58 +1,64 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+キャンプ場予約サービス
+概要
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+キャンプ場の検索・予約・レビュー機能を備えたWebアプリケーションです。
+利用者・ホスト・管理者の3つのロールに応じた機能を実装し、実務に近い設計を意識して開発しました。
 
-## About Laravel
+デモ
+項目	URL
+本番環境	https://campsite-web-ctyl.onrender.com
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+※初回アクセス時はサーバー起動のため数十秒かかる場合があります
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+テストアカウント
+メール: test@example.com
+パスワード: password
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+※ホスト・管理者機能は権限フラグが必要です
 
-## Learning Laravel
+使用技術
+フロントエンド
+Blade
+Vite
+Tailwind CSS
+Alpine.js
+バックエンド
+PHP 8.3
+Laravel 13
+インフラ
+Docker
+Render
+SQLite
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+主な機能
+ユーザー登録 / ログイン
+キャンプ場一覧・詳細表示
+予約機能
+レビュー投稿
+お気に入り機能
+Q&A機能
+お問い合わせ機能
+ホスト機能（施設管理）
+管理者機能
 
-In addition, [Laracasts](https://laracasts.com) contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+工夫した点
+利用者 / ホスト / 管理者でロールを分離し、実務に近い権限制御を実装
+API通信に対してスロットリングを実装し、過負荷対策を行った
+Docker + Render環境でのデプロイ構築を行った
+本番環境でのViteビルド問題（CSS未反映）を解決した
 
-You can also watch bite-sized lessons with real-world projects on [Laravel Learn](https://laravel.com/learn), where you will be guided through building a Laravel application from scratch while learning PHP fundamentals.
+苦労した点
+Render環境でCSSが反映されない問題に直面し、
+Viteのビルドやpublic/hotの影響を調査することで原因を特定し解決しました。
 
-## Agentic Development
+今後の改善
+データのシード追加
+E2Eテスト導入
+MySQLなど本番向けDBへの移行
+キュー・非同期処理の導入
 
-Laravel's predictable structure and conventions make it ideal for AI coding agents like Claude Code, Cursor, and GitHub Copilot. Install [Laravel Boost](https://laravel.com/docs/ai) to supercharge your AI workflow:
-
-```bash
-composer require laravel/boost --dev
-
-php artisan boost:install
-```
-
-Boost provides your agent 15+ tools and skills that help agents build Laravel applications while following best practices.
-
-## Contributing
-
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
-
-## Code of Conduct
-
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
-
-## Security Vulnerabilities
-
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
-
-## License
-
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+学んだこと
+LaravelのMVC構造と実務レベルの設計
+Dockerを用いた開発・デプロイ
+フロントエンドとバックエンドの連携
+本番環境でのトラブルシューティング
