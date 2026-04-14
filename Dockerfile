@@ -61,11 +61,15 @@ RUN npm install --ignore-scripts
 # アプリケーション一式
 COPY . .
 
+# Vite が本番で HMR 扱いになるのを防ぐ（public/hot があると @vite が dev サーバー向けになり CSS が効かない）
+RUN rm -f public/hot
+
 RUN composer dump-autoload --optimize --classmap-authoritative \
     && php artisan package:discover --ansi --no-interaction || true
 
-# Vite 本番ビルド（public/build を生成）
-RUN npm run build
+# Vite 本番ビルド（public/build/manifest.json を生成）
+RUN npm run build \
+    && rm -f public/hot
 
 # Laravel が書き込むディレクトリ + 実行ユーザー用に権限調整
 RUN mkdir -p storage/framework/sessions storage/framework/views storage/framework/cache storage/logs bootstrap/cache \

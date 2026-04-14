@@ -2,6 +2,9 @@
 set -e
 cd /var/www/html
 
+# 本番で @vite が Vite dev サーバー（127.0.0.1:5173）を指さないようにする
+rm -f public/hot
+
 if [ ! -f .env ]; then
     cp .env.example .env
 fi
