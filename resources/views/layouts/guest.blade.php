@@ -35,8 +35,10 @@
                 {{ $slot }}
             </div>
 
-            <p class="relative z-10 mt-6 text-xs text-green-300/60">
-                © {{ date('Y') }} {{ config('app.name') }}
+            <p class="relative z-10 mt-6 flex flex-wrap items-center justify-center gap-x-4 gap-y-1 text-xs text-green-300/70">
+                <a href="{{ route('contact.create') }}" class="font-semibold text-white underline decoration-green-400/50 underline-offset-2 hover:text-[#a8d878]">お問い合わせ</a>
+                <span class="text-green-400/40" aria-hidden="true">|</span>
+                <span>© {{ date('Y') }} {{ config('app.name') }}</span>
             </p>
         </div>
     </body>

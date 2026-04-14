@@ -26,7 +26,7 @@
         @stack('head')
     </head>
     <body class="font-sans antialiased">
-        <div class="min-h-screen bg-[#f0ece3]">
+        <div class="flex min-h-screen flex-col bg-[#f0ece3]">
             @include('layouts.navigation')
 
             <!-- Page Heading -->
@@ -39,9 +39,11 @@
             @endisset
 
             <!-- Page Content -->
-            <main>
+            <main class="flex-1">
                 {{ $slot }}
             </main>
+
+            @include('layouts.footer')
         </div>
 
         {{-- チャットボットウィジェット --}}
